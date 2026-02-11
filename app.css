@@ -1,0 +1,415 @@
+/* ============================================================
+   QUANTUM ALPHA PRO v23 | STYLESHEET CORE
+   ============================================================ */
+
+:root {
+    --bg-color: #040508;
+    --panel-bg: rgba(10, 13, 17, 0.9);
+    --up-neon: #00ff88; 
+    --down-neon: #ff2e63; 
+    --accent: #4a90e2;
+    --text-dim: #717b87;
+    --text-main: #ffffff;
+    --border: #1c2128;
+    --glow: rgba(74, 144, 226, 0.2);
+}
+
+/* --- RESET Y BASE --- */
+body {  
+    background: var(--bg-color);
+    color: var(--text-main);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;      /* Ocupa todo el alto de la ventana */
+    margin: 0;
+    overflow: hidden;       /* Evita scrolls innecesarios si el app es compacto */
+}
+
+button, .btn, .feed-btn, .touch-trigger {
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- CAPA RADAR (BLINDADA) --- */
+#mouse-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1; 
+    cursor: crosshair;
+    background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.7) 100%);
+    touch-action: none;
+}
+#mouse-overlay.active-radar { display: block; }
+
+/* --- CONTENEDOR PRINCIPAL (TERMINAL) --- */
+.terminal {
+    background: var(--panel-bg);
+    width: 95%;            /* Se adapta al ancho de la pantalla con un pequeño margen */
+    max-width: 340px;      /* El ancho ideal compacto que buscabas */
+    padding: 20px;
+    border-radius: 24px;
+    border: 1px solid var(--border);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    position: relative;
+    z-index: 10;
+    
+    /* Centrado absoluto en la página externa */
+    margin: auto; 
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- INFORMACIÓN DE CABECERA --- */
+.header-info {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 900;
+    font-family: 'monospace';
+}
+
+.header-info span {
+    color: var(--text-main);
+    font-size: 11px;
+}
+.data-visualization {
+    position: relative;
+    width: 100%;
+    height: 110px !important; /* Altura fija para el contenedor */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+#flow-chart {
+    width: 100% !important;
+    height: 80px !important; /* Altura fija para el dibujo */
+    display: block;
+}
+
+/* --- COMPONENTES DE BOTONES --- */
+.btn {
+    background: #161b22;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 10px 5px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 800;
+    position: relative;
+    z-index: 11;
+}
+
+.btn.active { 
+    color: #ffffff !important;
+    background-color: var(--accent) !important; 
+    border-color: var(--accent); 
+    box-shadow: 0 0 15px var(--glow); 
+}
+
+/* Colores específicos para modos IA */
+#neuralBtn.active { background-color: #00ff88 !important; color: #000 !important; border-color: #00ff88; }
+#trendBtn.active { background-color: #4a90e2 !important; color: #fff !important; }
+#confluenceBtn.active { background-color: #f1c40f !important; color: #000 !important; border-color: #f1c40f; }
+#adaptiveBtn.active { background-color: #e67e22 !important; color: #fff !important; border-color: #e67e22; }
+#autoPilotBtn.active { background-color: #ff9f43 !important; color: #000 !important; box-shadow: 0 0 15px rgba(255,159,67,0.4); border-color: #ff9f43;}
+
+/* --- TRACK DE ENTRADAS --- */
+.input-track {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* --- ZONA DE SEÑALES --- */
+.signal-zone {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(255,255,255,0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+#big-icon { font-weight: bold; z-index: 2; }
+#op-timer {
+    font-family: 'monospace';
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--text-main);
+    text-shadow: 0 0 15px var(--up-neon);
+}
+
+/* --- BARRA DE TIEMPO --- */
+#timer-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0%;
+    height: 4px;
+    background: var(--accent);
+    transition: width linear;
+    will-change: width;
+}
+
+/* --- ZONAS TÁCTILES (PROTEGIDAS) --- */
+#manual-touch-zone {
+    display: none;
+    gap: 12px;
+    width: 100%;
+    height: 80px;
+    margin-top: 10px;
+}
+#mouseBtn {
+    transition: all 0.3s ease; /* Esto hace que el cambio de color sea suave */
+}
+#manual-touch-zone.active-radar-ui { display: flex !important; }
+
+.touch-trigger {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    border-radius: 14px;
+    z-index: 11;
+}
+
+.t-up {
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.05), rgba(0, 255, 136, 0.2));
+    border: 2px solid var(--up-neon);
+    color: var(--up-neon);
+}
+
+.t-down {
+    background: linear-gradient(135deg, rgba(255, 46, 99, 0.05), rgba(255, 46, 99, 0.2));
+    border: 2px solid var(--down-neon);
+    color: var(--down-neon);
+}
+
+/* --- FEEDBACK GRID (NO TOCAR LÓGICA) --- */
+.feedback-grid { 
+    display: flex;
+    gap: 10px;
+    height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.feedback-grid.show {
+    height: 55px;
+    opacity: 1;
+    margin: 10px 0;
+}
+
+.feed-btn {
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 900;
+    border: none;
+}
+
+#winBtn { background-color: var(--up-neon) !important; color: #000; }
+#lossBtn { background-color: var(--down-neon) !important; color: #fff; }
+
+/* --- ANIMACIONES --- */
+@keyframes heartbeat-red {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 15px rgba(255, 46, 99, 0.2); }
+    50% { transform: scale(1.02); box-shadow: 0 0 30px rgba(255, 46, 99, 0.4); }
+}
+
+@keyframes heartbeat-green {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 15px rgba(0, 255, 136, 0.2); }
+    50% { transform: scale(1.02); box-shadow: 0 0 30px rgba(0, 255, 136, 0.4); }
+}
+
+.high-noise-heart-red { animation: heartbeat-red 2s infinite ease-in-out !important; border-color: var(--down-neon) !important; }
+.high-noise-heart-green { animation: heartbeat-green 2s infinite ease-in-out !important; border-color: var(--up-neon) !important; }
+
+/* --- RESPONSIVIDAD --- */
+@media (max-width: 400px) {
+    .terminal { padding: 15px; }
+    #big-icon { font-size: 45px; }
+    .btn { font-size: 9px; }
+    #op-timer { font-size: 24px; }
+}
+
+/* Tooltips dinámicos */
+[title]:active::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1c2128;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 10px;
+    z-index: 1000;
+    border: 1px solid var(--accent);
+}
+/* Clase que se activa con el radar */
+.fullscreen-adaptive {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: env(safe-area-inset-top) 10px env(safe-area-inset-bottom) 10px;
+}
+
+/* Ajuste para que los gráficos y botones crezcan proporcionalmente */
+.fullscreen-adaptive #flow-chart {
+    flex: 1; /* Hace que el gráfico ocupe el espacio sobrante */
+    width: 100% !important;
+}
+
+/* Evita que el body haga scroll mientras el radar está activo */
+body:has(.fullscreen-adaptive) {
+    overflow: hidden;
+}
+
+
+
+
+
+/* --- BOTONES FUTURISTAS --- */
+.cyber-btn {
+    position: relative;
+    width: 150px;
+    height: 120px;
+    background: rgba(10, 15, 25, 0.7);
+    border: 1px solid #4a90e2;
+    color: white;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s border-radius;
+    clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%); /* Corte angular */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(8px);
+}
+
+.cyber-btn.pc { border-color: #4a90e2; box-shadow: inset 0 0 15px rgba(74, 144, 226, 0.2); }
+.cyber-btn.mobile { border-color: #00ff88; box-shadow: inset 0 0 15px rgba(0, 255, 136, 0.2); }
+
+.cyber-btn .icon { font-size: 32px; margin-bottom: 8px; transition: transform 0.3s; }
+.cyber-btn .label { font-size: 10px; font-weight: bold; letter-spacing: 2px; opacity: 0.8; }
+
+/* Efecto Hover */
+.cyber-btn:hover {
+    background: rgba(74, 144, 226, 0.15);
+    transform: translateY(-5px);
+}
+
+.cyber-btn.pc:hover { border-color: #fff; box-shadow: 0 0 20px rgba(74, 144, 226, 0.6); }
+.cyber-btn.mobile:hover { border-color: #fff; box-shadow: 0 0 20px rgba(0, 255, 136, 0.6); }
+
+.cyber-btn:hover .icon { transform: scale(1.2); }
+
+/* Animación de brillo (Shimmer) */
+.shimmer {
+    position: absolute;
+    top: -100%;
+    left: -100%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+    transform: rotate(45deg);
+    animation: shimmer-flow 3s infinite;
+}
+
+@keyframes shimmer-flow {
+    0% { transform: translate(-50%, -50%) rotate(45deg); }
+    100% { transform: translate(50%, 50%) rotate(45deg); }
+}
+
+/* Animación para el título */
+.cyber-title {
+    animation: glitch-text 4s infinite;
+}
+
+@keyframes glitch-text {
+    0%, 90%, 100% { opacity: 1; transform: skew(0); }
+    92% { opacity: 0.5; transform: skew(10deg); color: #ff2e63; }
+    94% { opacity: 1; transform: skew(-10deg); }
+}
+@keyframes pulse-risk {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.02); }
+    100% { opacity: 1; transform: scale(1); }
+}
+/* Animación para el visualizador */
+.data-visualization {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    max-height: 500px; /* Altura máxima cuando está abierto */
+    cursor: pointer;
+}
+
+.data-visualization.collapsed {
+    max-height: 25px !important; /* Altura mínima al encogerse */
+    opacity: 0.7;
+    filter: grayscale(0.5);
+    margin-bottom: 5px;
+}
+
+/* Evitar que los botones se activen por accidente al estar colapsado */
+.collapsed .btn, .collapsed canvas {
+    pointer-events: none;
+}
+
+
+        /* Ajustes específicos para el colapso real del acordeón */
+        .data-visualization {
+            height: auto !important; /* Permite que la caja se encoja */
+            transition: all 0.3s ease;
+        }
+        
+        summary::-webkit-details-marker { display: none; }
+        
+        details[open] .toggle-icon {
+            transform: rotate(0deg);
+            transition: transform 0.2s ease;
+        }
+        
+        details:not([open]) .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .data-visualization summary:hover {
+            background: rgba(255,255,255,0.1);
+        }
+/* Efecto de aparición suave para el video de fondo */
+.video-fade-in {
+    animation: fadeInVideo 2.5s ease-in-out forwards;
+}
+
+@keyframes fadeInVideo {
+    from {
+        opacity: 0;
+        filter: blur(10px); /* Empieza borroso para un toque más premium */
+    }
+    to {
+        opacity: 0.4;      /* La opacidad final que ya tenías en tu inline style */
+        filter: blur(0);
+    }
+}
