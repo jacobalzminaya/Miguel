@@ -67,17 +67,20 @@ async function predictNextMovement() {
  * ENTRENAMIENTO: La IA aprende si su predicción fue correcta según la energía
  */
 async function trainModelWithResult(isWin) {
-    if (!quantumLSTMModel || sequence.length < 50) return;
+    // CAMBIO: Validamos que haya al menos 20, no 50
+    if (!quantumLSTMModel || sequence.length < 20) return;
 
     try {
-        const trainingData = sequence.slice(-50).map(s => [
+        // CAMBIO: slice(-20) para coincidir con la arquitectura del modelo
+        const trainingData = sequence.slice(-20).map(s => [
             s.val === 'A' ? 1 : 0,
             Math.min(1, (window.marketEnergy || 0) / 10)
         ]);
 
         const target = isWin ? 1 : 0;
-        const xs = tf.tensor3d([trainingData]);
-        const ys = tf.tensor2d([[target]]);
+        // Especificamos el shape [1, 20, 2] para asegurar consistencia
+        const xs = tf.tensor3d([trainingData], [1, 20, 2]);
+        const ys = tf.tensor2d([[target]], [1, 1]);
 
         // Entrenamiento rápido de 1 época para adaptación en tiempo real
         await quantumLSTMModel.fit(xs, ys, { epochs: 1, silent: true });
@@ -86,7 +89,7 @@ async function trainModelWithResult(isWin) {
         ys.dispose();
         console.log(`🧠 IA Reforzada | Resultado: ${isWin ? '✅' : '❌'} | Energía: ${window.marketEnergy.toFixed(2)}`);
     } catch (e) {
-        console.error("Error en entrenamiento IA:", e);
+        console.error("❌ Error en entrenamiento IA:", e);
     }
 }
 /**
@@ -106,29 +109,29 @@ function checkSurvivalFilter(currentNoise) {
  * Predicción Real basada en Secuencia
  */
 async function getLiveNeuralPrediction() {
-    // Mantenemos la validación de seguridad original
-    if (!quantumLSTMModel || sequence.length < 50) return 0.5;
+    // CAMBIO: Bajamos el requisito a 20 para no esperar tanto tiempo a que el bot opere
+    if (!quantumLSTMModel || sequence.length < 20) return 0.5;
 
     return tf.tidy(() => {
         /**
          * TRANSFORMACIÓN QUIRÚRGICA:
-         * Ahora mapeamos cada vela como un par: [Dirección, Energía]
-         * Normalizamos la energía dividiendo por 10 (asumiendo rango 0-10) 
-         * para que esté en la misma escala (0 a 1) que la dirección.
+         * Sincronizamos el slice a -20.
          */
-        const rawData = sequence.slice(-50).map(s => [
+        const rawData = sequence.slice(-20).map(s => [
             s.val === 'A' ? 1 : 0, 
             (window.marketEnergy || 0) / 10 
         ]);
 
-        // Cambiamos la forma del tensor de [1, 50, 1] a [1, 50, 2]
-        const inputTensor = tf.tensor3d([rawData], [1, 50, 2]);
+        // CAMBIO: El tensor debe ser de [1, 20, 2]
+        const inputTensor = tf.tensor3d([rawData], [1, 20, 2]);
         
         const prediction = quantumLSTMModel.predict(inputTensor);
-        return prediction.dataSync()[0];
+        const score = prediction.dataSync()[0];
+        
+        window.lastNeuralPrediction = score; // Guardamos en el estado global
+        return score;
     });
 }
-
 // Inicializar al cargar el script
 initQuantumLSTM();
 function getMajorTrend() {
@@ -456,4 +459,5 @@ function getAdvancedDiagnostics() {
     
     console.log(diagnostic);
     return diagnostic;
+
 }
